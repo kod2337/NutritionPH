@@ -12,6 +12,18 @@ if(isset($_SESSION['user_id'])){
 
 include 'components/add_cart.php';
 include 'chatbot.php';
+
+// Fetch products for display
+function getLatestProducts($conn, $limit = 6) {
+    $select_products = $conn->prepare("SELECT * FROM `products` LIMIT ?");
+    $select_products->bindValue(1, $limit, PDO::PARAM_INT);
+    $select_products->execute();
+    
+    return $select_products;
+}
+
+// Get products data
+$products = getLatestProducts($conn);
 ?>
 
 
@@ -30,10 +42,10 @@ include 'chatbot.php';
    
    <!-- Swiper CSS -->
    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
-   
+
    <!-- Font Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-   
+
    <!-- Google Fonts -->
    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    
@@ -42,8 +54,9 @@ include 'chatbot.php';
    
    <!-- Custom CSS -->
    <link rel="stylesheet" href="css/style.css">
-   
-   <style>
+   <link rel="stylesheet" href="css/custom.css">
+
+<style>
       :root {
          --primary-color: #2ecc71;
          --secondary-color: #27ae60;
@@ -53,15 +66,15 @@ include 'chatbot.php';
          --box-shadow: 0 8px 30px rgba(0,0,0,0.1);
          --border-radius: 15px;
          --transition: all 0.3s ease;
-      }
-      
-      body {
+   }
+   
+   body {
          font-family: 'Poppins', sans-serif;
          /*background: url('images/background1.jpg') no-repeat center center fixed; */
          background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
-         background-size: cover;
-         margin: 0;
-         padding: 0;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
          color: var(--text-color);
          min-height: 100vh;
          position: relative;
@@ -84,7 +97,7 @@ include 'chatbot.php';
       }
       
       /* Welcome Popup */
-      .popup-message {
+.popup-message {
          position: fixed;
          top: 50%;
          left: 50%;
@@ -100,7 +113,7 @@ include 'chatbot.php';
          opacity: 1;
          transition: opacity 0.5s ease-in-out;
       }
-      
+
       /* Hero Section */
       .hero-container {
          width: 100%;
@@ -240,7 +253,7 @@ include 'chatbot.php';
       
       .section-title {
          text-align: center;
-         margin-bottom: 50px;
+      margin-bottom: 50px;
          font-size: 2.5rem;
          color: var(--primary-color);
          text-transform: capitalize;
@@ -494,7 +507,7 @@ include 'chatbot.php';
                   </div>
                </div>
 
-            </div>
+   </div>
 
             <div class="swiper-pagination"></div>
          </div>
@@ -505,28 +518,28 @@ include 'chatbot.php';
    <section class="py-5" data-aos="fade-up">
       <div class="row text-center g-4">
          <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-            <div class="p-4 rounded-3" style="background-color: var(--light-bg); box-shadow: var(--box-shadow);">
-               <i class="fas fa-utensils fa-2x mb-3" style="color: var(--primary-color)"></i>
+            <div class="stats-card p-4 rounded-3">
+               <i class="fas fa-utensils stats-icon fa-2x mb-3"></i>
                <h3 class="h4 mb-2">Fresh Ingredients</h3>
                <p class="mb-0">We use only the freshest ingredients for all our dishes</p>
             </div>
          </div>
          <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-            <div class="p-4 rounded-3" style="background-color: var(--light-bg); box-shadow: var(--box-shadow);">
-               <i class="fas fa-carrot fa-2x mb-3" style="color: var(--primary-color)"></i>
+            <div class="stats-card p-4 rounded-3">
+               <i class="fas fa-carrot stats-icon fa-2x mb-3"></i>
                <h3 class="h4 mb-2">Healthy Meals</h3>
                <p class="mb-0">Nutritionally balanced meals for your wellbeing</p>
             </div>
          </div>
          <div class="col-md-4" data-aos="fade-up" data-aos-delay="500">
-            <div class="p-4 rounded-3" style="background-color: var(--light-bg); box-shadow: var(--box-shadow);">
-               <i class="fas fa-truck fa-2x mb-3" style="color: var(--primary-color)"></i>
+            <div class="stats-card p-4 rounded-3">
+               <i class="fas fa-truck stats-icon fa-2x mb-3"></i>
                <h3 class="h4 mb-2">Fast Delivery</h3>
                <p class="mb-0">Quick delivery to your doorstep</p>
             </div>
          </div>
       </div>
-   </section>
+</section>
 
    <!-- Food Categories Section -->
    <section class="category-section" data-aos="fade-up">
@@ -564,18 +577,16 @@ include 'chatbot.php';
       </div>
       
       <div class="row g-4">
-         <?php
-            $select_products = $conn->prepare("SELECT * FROM `products` LIMIT 6");
-            $select_products->execute();
-            if($select_products->rowCount() > 0){
-               while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
+      <?php
+            if($products->rowCount() > 0){
+               while($fetch_products = $products->fetch(PDO::FETCH_ASSOC)){
          ?>
          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
             <form action="" method="post" class="product-card">
-               <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
-               <input type="hidden" name="name" value="<?= $fetch_products['name']; ?>">
-               <input type="hidden" name="price" value="<?= $fetch_products['price']; ?>">
-               <input type="hidden" name="image" value="<?= $fetch_products['image']; ?>">
+         <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
+         <input type="hidden" name="name" value="<?= $fetch_products['name']; ?>">
+         <input type="hidden" name="price" value="<?= $fetch_products['price']; ?>">
+         <input type="hidden" name="image" value="<?= $fetch_products['image']; ?>">
                
                <div class="product-icons">
                   <a href="quick_view.php?pid=<?= $fetch_products['id']; ?>" class="product-icon fas fa-eye"></a>
@@ -591,29 +602,45 @@ include 'chatbot.php';
                </div>
             </form>
          </div>
-         <?php
+      <?php
                }
             } else {
                echo '<div class="col-12"><p class="alert alert-info text-center">No products added yet!</p></div>';
             }
          ?>
-      </div>
+   </div>
 
       <div class="text-center mt-5" data-aos="fade-up">
          <a href="menu.php" class="btn btn-custom">View All Products</a>
-      </div>
-   </section>
+   </div>
+</section>
    
    <!-- Call to Action -->
-   <section class="py-5 my-5" data-aos="fade-up">
+   <section class="py-5 my-5 cta-section" data-aos="fade-up">
       <div class="row align-items-center">
-         <div class="col-md-6 mb-4 mb-md-0">
-            <h2 class="mb-4">Ready to eat healthy?</h2>
-            <p class="lead mb-4">Start your journey to better health with our nutritious and delicious meals.</p>
-            <a href="menu.php" class="btn btn-custom">Order Now</a>
+         <div class="col-md-5 mb-4 mb-md-0 px-4">
+            <div class="cta-content">
+               <span class="cta-badge">NEW CUSTOMER SPECIAL</span>
+               <h2 class="cta-title">Transform Your Diet Today!</h2>
+               <p class="cta-text">Start your wellness journey with our chef-crafted, nutrient-rich meals delivered right to your door.</p>
+               <ul class="cta-list">
+                  <li><i class="fas fa-check-circle me-2"></i> Fresh, locally-sourced ingredients</li>
+                  <li><i class="fas fa-check-circle me-2"></i> No preservatives or additives</li>
+               </ul>
+               <div class="cta-buttons">
+                  <a href="menu.php" class="btn-cta-primary">VIEW MENU</a>
+                  <a href="about.php" class="btn-cta-secondary">Learn More</a>
+               </div>
+            </div>
          </div>
-         <div class="col-md-6 text-center">
-            <img src="images/healthyfoods.jpg" alt="Healthy Foods" class="img-fluid rounded-circle" style="max-width: 80%; box-shadow: var(--box-shadow);">
+         <div class="col-md-7 text-center">
+            <div class="cta-image-container">
+               <img src="images/fruits-veggies-circle.png" alt="Healthy Foods" class="cta-image-large">
+               <div class="cta-discount">
+                  <span class="discount-amount">10%</span>
+                  <span class="discount-text">FIRST ORDER</span>
+               </div>
+            </div>
          </div>
       </div>
    </section>
@@ -632,127 +659,7 @@ include 'chatbot.php';
 
 <!-- Custom JS -->
 <script src="js/script.js"></script>
-
-<script>
-   // Initialize AOS with more modern settings
-   AOS.init({
-      duration: 800,
-      offset: 100,
-      once: false,
-      mirror: true,
-      easing: 'ease-in-out'
-   });
-
-   // Welcome popup with better animation
-   setTimeout(() => {
-      const popup = document.getElementById("welcomePopup");
-      popup.style.transform = "translate(-50%, -50%) scale(1.1)";
-      popup.style.opacity = "0";
-      setTimeout(() => popup.style.display = "none", 500);
-   }, 5000);
-
-   // Initialize Swiper with more modern options
-   var swiper = new Swiper(".hero-slider", {
-      loop: true,
-      grabCursor: true,
-      effect: "fade",
-      fadeEffect: {
-         crossFade: true
-      },
-      speed: 1000,
-      autoplay: {
-         delay: 5000,
-         disableOnInteraction: false,
-      },
-      pagination: {
-         el: ".swiper-pagination",
-         clickable: true,
-         dynamicBullets: true,
-      },
-      navigation: {
-         nextEl: '.swiper-button-next',
-         prevEl: '.swiper-button-prev',
-      },
-   });
-
-   // Reveal animations on scroll
-   const observerOptions = {
-      threshold: 0.1
-   };
-   
-   const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-         if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-         }
-      });
-   }, observerOptions);
-   
-   document.querySelectorAll('.product-card, .category-card').forEach(el => {
-      el.classList.add('reveal');
-      observer.observe(el);
-   });
-
-   // Add smooth scrolling behavior
-   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-         e.preventDefault();
-         
-         const targetId = this.getAttribute('href');
-         const targetElement = document.querySelector(targetId);
-         
-         if (targetElement) {
-            window.scrollTo({
-               top: targetElement.offsetTop - 100,
-               behavior: 'smooth'
-            });
-         }
-      });
-   });
-   
-   // Add this CSS dynamically
-   const style = document.createElement('style');
-   style.textContent = `
-      .reveal {
-         opacity: 0;
-         transform: translateY(30px);
-         transition: all 0.8s ease;
-      }
-      .reveal.visible {
-         opacity: 1;
-         transform: translateY(0);
-      }
-      
-      .hero-slider:after {
-         content: '';
-         position: absolute;
-         bottom: -50px;
-         left: 0;
-         width: 100%;
-         height: 70px;
-         background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(245,247,250,1));
-         z-index: 1;
-      }
-      
-      .product-card:after {
-         content: '';
-         position: absolute;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.03) 100%);
-         opacity: 0;
-         transition: all 0.3s ease;
-         pointer-events: none;
-      }
-      
-      .product-card:hover:after {
-         opacity: 1;
-      }
-   `;
-   document.head.appendChild(style);
-</script>
+<script src="js/home.js"></script>
 
 </body>
 </html>
